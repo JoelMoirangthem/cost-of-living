@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cost of Living - {{ city }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* 🎨 MODERN, VIBRANT COLOR PALETTE & VARIABLES */
+    :root{
+      --primary: #4f46e5; /* Indigo/Violet as main accent */
+      --primary-dark: #3730a3;
+      --primary-light: #eef2ff;
+      --bg-light: #f9fafb; /* Lighter background */
+      --bg-dark: #f0f4f8; /* Subtle gradient base */
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --radius: 16px;
+      --shadow-sm: 0 4px 12px rgba(17, 24, 39, 0.04);
+      --shadow-lg: 0 10px 30px rgba(17, 24, 39, 0.08);
+      --ease: cubic-bezier(.2,.9,.3,1);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding-bottom:140px; /* space for cart */
+    }
+
+    /* HEADER: More impactful hero section */
+    header{
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color:white;
+      padding: 50px 22px 70px; /* More vertical padding */
+      text-align:center;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.2);
+      border-bottom-left-radius: 40px; /* Smoother, deeper curve */
+      border-bottom-right-radius: 40px;
+    }
+    header h1{ margin:0; font-weight:800; font-size:36px; letter-spacing:0.5px; }
+    .subtitle{ margin-top:8px; opacity:0.95; font-size:16px; font-weight:300; }
+
+    .container{
+      max-width:1200px; margin: -50px auto 24px; padding: 0 20px; /* Pull up into header */
+    }
+
+    /* SEARCH CARD: Floating, prominent, glass-like effect */
+    .search-card{
+      background: var(--card-bg);
+      padding:22px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:center;
+      transition: transform .4s var(--ease);
+      border: 1px solid #f0f4f8; /* subtle border */
+    }
+    .search-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 40px rgba(79, 70, 229, 0.1); }
+
+    .search-card input{
+      border:1px solid #e5e7eb;
+      padding:14px 16px;
+      border-radius:10px;
+      outline:none;
+      min-width:240px;
+      font-size:16px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.05) inset;
+      transition: box-shadow .25s, border-color .25s;
+    }
+    .search-card input:focus{
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light), 0 6px 20px rgba(79, 70, 229, 0.1);
+    }
+    
+    /* BUTTON: Enhanced hover/active states */
+    .btn{
+      background:var(--primary);
+      border:none;
+      color:white;
+      padding:12px 20px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.2);
+      transition: all .2s var(--ease);
+      font-size:16px;
+    }
+    .btn:hover{ background:var(--primary-dark); box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3); }
+    .btn:active{ transform: scale(0.98); }
+
+    /* CATEGORY CHIPS: Pill shape, more interactive */
+    .chips{
+      display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+      margin:30px 0 25px;
+    }
+    .chip{
+      background: var(--card-bg);
+      border-radius: 50px; /* Fully rounded pill */
+      padding:10px 20px;
+      border: 2px solid var(--primary-light);
+      cursor:pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all .25s var(--ease);
+      color: var(--text-main);
+      font-weight:600;
+    }
+    .chip:hover{
+      transform: translateY(-2px);
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+    .chip.active{
+      background: var(--primary);
+      border-color: var(--primary-dark);
+      color: white;
+      transform: scale(1.03) translateY(-4px);
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.35);
+    }
+
+    /* GRID & CARD */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:30px; /* Wider gap */
+      margin-top:15px;
+    }
+    @media (max-width:1100px){ .grid{ grid-template-columns: repeat(2,1fr);} }
+    @media (max-width:700px){ .grid{ grid-template-columns: 1fr; } .container{ padding:0 14px; } }
+
+    .card{
+      background:var(--card-bg);
+      border-radius: var(--radius);
+      padding:24px;
+      box-shadow: var(--shadow-sm);
+      transform: translateY(10px); /* Initial offset for reveal */
+      transition: transform .4s var(--ease), box-shadow .4s, opacity .4s var(--ease);
+      will-change: transform, opacity;
+      opacity:0;
+    }
+    .card.revealed{ opacity:1; transform: translateY(0); }
+    .card:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(16,24,40,0.12); }
+
+    .card h2{ margin:0 0 15px; font-size:20px; color:var(--primary-dark); border-bottom:1px solid #eef2f6; padding-bottom:12px; font-weight:700; }
+
+    ul.item-list{ list-style:none; margin:0; padding:0; display:block; }
+    ul.item-list li{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:12px 0;
+      border-bottom:1px dashed #f0f4f8;
+      transition: background .2s;
+    }
+    ul.item-list li:hover{ background: var(--primary-light); padding-left: 10px; padding-right: 10px; margin: 0 -10px; border-radius: 4px; }
+    ul.item-list li:last-child{ border-bottom:0; }
+
+    .left{
+      display:flex; align-items:center; gap:16px;
+    }
+    .item-title{ font-weight:600; color:var(--text-main); font-size:16px; }
+    .item-sub{ color:var(--text-muted); font-weight:500; margin-top:4px; font-size:13px; }
+
+    .controls{ display:flex; align-items:center; gap:8px; }
+    .qty-btn{
+      width:38px; height:38px; border-radius:50%; /* Circular buttons */
+      border:none;
+      display:inline-grid; place-items:center; cursor:pointer;
+      background:var(--primary-light);
+      color:var(--primary-dark);
+      font-weight:700;
+      font-size: 18px;
+      transition: transform .15s, background .15s;
+    }
+    .qty-btn:hover{ background: #cfd4ff; }
+    .qty-btn:active{ transform:scale(.9); }
+    .qty{ min-width:30px; text-align:center; font-weight:700; color:var(--text-main); font-size:16px; }
+
+    /* CART: Floating bar with subtle glass effect */
+    #cart{
+      position:fixed; left:12px; right:12px; bottom:20px;
+      background: rgba(255,255,255, 0.95); /* Glass effect */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 40px rgba(15,23,42,0.18);
+      padding:18px 24px;
+      display:flex; gap:20px; align-items:center;
+      transform: translateY(150%);
+      transition: transform .5s var(--ease);
+      max-width:1200px; margin:0 auto;
+      left:50%; transform-origin:center;
+      z-index:100;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+    #cart.active{ transform: translate(-50%,0%); }
+
+    .cart-list{ flex:1; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+    .cart-item{ display:flex; gap:10px; align-items:center; font-weight:600; color:var(--text-main); }
+    .cart-sum{ font-weight:800; color:var(--primary); font-size:24px; letter-spacing:0.5px; }
+
+    .cart-actions{ display:flex; gap:10px; }
+    .btn-outline{
+        background: transparent;
+        border: 2px solid #e0e7ff;
+        color: var(--primary-dark);
+        padding:10px 16px;
+        border-radius:10px;
+        cursor:pointer;
+        font-weight:600;
+        transition: all .2s;
+    }
+    .btn-outline:hover{ background: #f0f4ff; border-color: var(--primary); }
+
+    /* category content toggling (animation remains good) */
+    .category-content{ display:none; animation: fadeIn .4s ease both; }
+    .category-content.active{ display:block; }
+    @keyframes fadeIn { from{ opacity:0; transform: translateY(10px)} to{opacity:1; transform:none} }
+
+    /* tiny helper for price text */
+    .price{ color:var(--primary); font-weight:800; margin-left:6px; font-size:15px; }
+
+    /* small responsive tweaks */
+    .top-row{ display:flex; gap:16px; align-items:center; justify-content:space-between; margin-top:20px; }
+    @media (max-width:900px){
+      .top-row{ flex-direction:column; gap:12px; align-items:center }
+      .search-card{ flex-direction:column; }
+      .search-card input{ min-width: 100%; }
+      #cart{ flex-direction:column; padding: 18px 18px 14px; }
+      .cart-list{ justify-content:center; }
+      .cart-actions{ width: 100%; justify-content: space-around; }
+      .btn, .btn-outline{ flex: 1; text-align: center; }
+    }
+
+    /* floating helper icon for toggle */
+    .toggle-pin{
+      position:fixed; right:20px; bottom:120px;
+      background:var(--primary);
+      color:white;
+      border-radius:50%; /* Circular */
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+      width:50px; height:50px;
+      display:grid; place-items:center; cursor:pointer;
+      z-index:120;
+      font-size: 24px;
+      transition: transform .2s var(--ease), box-shadow .2s;
+    }
+    .toggle-pin:hover{ transform: scale(1.05) rotate(-5deg); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); }
+    .toggle-pin:active{ transform: scale(0.95); }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Cost of Living in {{ city }}, {{ country }}</h1>
+  <div class="subtitle">Quickly browse prices and build a simple cost report</div>
+</header>
+
+<div class="container">
+  <div class="search-card" role="search" aria-label="city selector">
+    <form method="post" style="display:flex;gap:10px;align-items:center">
+      <input name="city" placeholder="City e.g. Imphal" required>
+      <input name="country" placeholder="Country e.g. India" required>
+      <button class="btn" type="submit">Get Cost</button>
+    </form>
+  </div>
+
+  {% if error %}
+    <div style="text-align:center;margin-top:22px;color:#dc2626;font-weight:700">{{ error }}</div>
+  {% endif %}
+
+  {% if data %}
+    <div class="chips" id="chips">
+      {% for category in data %}
+        {% if data[category] %}
+          <div class="chip" data-cat="{{ category|replace(' ','_') }}">{{ category }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="top-row">
+      <div style="flex:1">
+        </div>
+      <div style="text-align:right;color:var(--text-muted);font-weight:600">Tap a chip to toggle a category • Add items to build your total</div>
+    </div>
+
+    <div class="grid" id="grid">
+      {% for category, items in data.items() %}
+        {% if items %}
+          <div id="{{ category|replace(' ','_') }}" class="card category-content">
+            <h2>{{ category }}</h2>
+            <ul class="item-list">
+              {% for item, price in items.items() %}
+                <li data-item="{{ item }}" data-price="{{ price.replace('₹','').replace(',','') }}">
+                  <div class="left">
+                    <div>
+                      <div class="item-title">{{ item }}</div>
+                      <div class="item-sub">(<span class="price">₹{{ price }}</span>)</div>
+                    </div>
+                  </div>
+                  <div class="controls">
+                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                    <div class="qty">0</div>
+                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <p style="text-align:center;margin-top:36px;color:var(--text-muted)">No data found for the selected city.</p>
+  {% endif %}
+</div>
+
+<div id="cart" aria-live="polite">
+  <div class="cart-list" id="cart-items">
+    <div style="min-width:10px; color:var(--text-muted)">Your Cart is Empty</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="text-align:right">
+      <div style="font-size:14px;color:var(--text-muted);font-weight:500">TOTAL ESTIMATE</div>
+      <div class="cart-sum">₹<span id="cart-total">0.00</span></div>
+    </div>
+    <div class="cart-actions">
+      <button class="btn-outline" onclick="clearCart()">Clear</button>
+      <button class="btn" onclick="checkout()">Checkout Report</button>
+    </div>
+  </div>
+</div>
+
+<div class="toggle-pin" id="toggle-pin" title="Show / hide cart">🧾</div>
+
+<script>
+  // Script logic remains IDENTICAL, only re-pasting for completeness:
+  const cart = {};
+
+  function toggleCategoryElement(catId, chipEl){
+    const el = document.getElementById(catId);
+    if(!el) return;
+    el.classList.toggle('active');
+    chipEl.classList.toggle('active');
+    // smooth scroll to element when activated on small viewports
+    if(el.classList.contains('active')){
+      setTimeout(()=> el.scrollIntoView({behavior:'smooth', block:'center'}), 140);
+    }
+  }
+
+  // wire chips
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=> {
+      const catId = chip.getAttribute('data-cat');
+      toggleCategoryElement(catId, chip);
+    });
+  });
+
+  // reveal animation: IntersectionObserver for staggered reveal
+  const revealEls = document.querySelectorAll('.card');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach((entry, idx)=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('revealed');
+        // Staggered delay for a cool flowing entrance effect
+        entry.target.style.transitionDelay = `${(Array.from(revealEls).indexOf(entry.target) % 3) * 100}ms`;
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.12});
+  revealEls.forEach(el => io.observe(el));
+
+  // qty / cart logic (keeps compatibility)
+  function changeQty(btn, delta){
+    const li = btn.closest('li');
+    const name = li.dataset.item;
+    const price = parseFloat(li.dataset.price);
+    const qtyEl = li.querySelector('.qty');
+    let qty = parseInt(qtyEl.textContent) + delta;
+    if(qty < 0) qty = 0;
+    qtyEl.textContent = qty;
+    if(qty === 0) delete cart[name];
+    else cart[name] = { price, qty };
+    renderCart();
+  }
+
+  function renderCart(){
+    const cartDiv = document.getElementById('cart');
+    const itemsDiv = document.getElementById('cart-items');
+    itemsDiv.innerHTML = '';
+    let total = 0;
+    const cartEntries = Object.entries(cart);
+
+    if(cartEntries.length === 0){
+        itemsDiv.innerHTML = '<div style="min-width:10px; color:var(--text-muted)">Your Cart is Empty</div>';
+    } else {
+        for(const [name, {price, qty}] of cartEntries){
+          total += price * qty;
+          const node = document.createElement('div');
+          node.className = 'cart-item';
+          node.innerHTML = `<div style="min-width:220px">${name} × ${qty}</div><div style="font-weight:700">₹${(price*qty).toFixed(2)}</div>`;
+          itemsDiv.appendChild(node);
+        }
+    }
+
+    document.getElementById('cart-total').textContent = total.toFixed(2);
+    cartDiv.classList.toggle('active', Object.keys(cart).length > 0);
+    // update small qty numbers in list (in case changed via cart)
+    document.querySelectorAll('li').forEach(li=>{
+      const n= li.dataset.item;
+      const qel= li.querySelector('.qty');
+      qel.textContent = cart[n]?.qty || 0;
+    });
+  }
+
+  function adjustCart(name, delta){
+    if(!cart[name]) return;
+    cart[name].qty += delta;
+    if(cart[name].qty <=0) delete cart[name];
+    renderCart();
+  }
+
+  function clearCart(){
+    for(const k in cart) delete cart[k];
+    document.querySelectorAll('.qty').forEach(el => el.textContent = '0');
+    renderCart();
+  }
+
+  function checkout(){
+    alert('This demo does not implement a checkout. You can export or build your report here. Items in cart: ' + JSON.stringify(cart, null, 2));
+  }
+
+  // pin toggle for cart
+  document.getElementById('toggle-pin').addEventListener('click', ()=>{
+    const c = document.getElementById('cart');
+    c.classList.toggle('active');
+  });
+
+  // ensure category content elements are hidden initially; we reveal them once JS is ready
+  document.querySelectorAll('.category-content').forEach(el=>{
+    // collapse by default (so only chips control visibility)
+    el.classList.remove('active');
+  });
+
+  // make the first chip active by default
+  const firstChip = document.querySelector('.chip');
+  if(firstChip){
+    setTimeout(()=> {
+      // Simulate click to activate first chip and reveal content
+      const catId = firstChip.getAttribute('data-cat');
+      const el = document.getElementById(catId);
+      if(el) {
+          el.classList.add('active');
+          firstChip.classList.add('active');
+      }
+    }, 120);
+  }
+
+</script>
+
+</body>
+</html>
